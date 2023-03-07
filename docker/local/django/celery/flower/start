@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -0 errexit
+set -0 nounset
+
+worker_ready() {
+    # Check if the worker is ready to accept tasks
+    # https://docs.celeryproject.org/en/stable/userguide/workers.html#worker-heartbeat
+    celery -A authors_api inspect ping 
+}
+
+until worker_ready; do
+    >&2 echo "Celery worker is unavailable - sleeping"
+    sleep 1
+done
+>&2 echo "Celery worker is up - executing command"
+
+celery -A authors_api \
+    --broker=${CELERY_BROKER} \
+    flower \
+    --basic_auth=${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD} 
