@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 import environ
 
@@ -31,6 +32,8 @@ THIRD_PARTY_APPS = [
     "drf_yasg",
     "corsheaders",
     "djcelery_email",
+    "djoser",
+    "rest_framework_simplejwt",
 ]
 
 LOCAL_APPS = [
@@ -156,8 +159,41 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULTS_SERIALIZER = "json"
 
 REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "core_apps.common.exceptions.custom_exception_handler",
+    "EXCEPTION_HANDLER": "core_apps.common.exceptions.common_exception_handler",
     "NON_FIELD_ERRORS_KEY": "error",
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Bearer", "JWT",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=720),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "SIGNING_KEY": env("SIGNING_KEY"),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+}
+
+DJOSER = {
+    "LOGIN_FIELD": "email",
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "SEND_CONFIRMATION_EMAIL": True,
+    "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
+    "SET_PASSWORD_RETYPE": True,
+    "PASSWORD_RESET_CONFIRM_RETYPE": True,
+    "USERNAME_RESET_CONFIRM_URL": "email/reset/confirm/{uid}/{token}",
+    "ACTIVATION_URL": "activate/{uid}/{token}",
+    "SEND_ACTIVATION_EMAIL": True,
+    "SERIALIZERS": {
+        "user_create": "core_apps.users.serializers.CreateUserSerializer",
+        "user": "core_apps.users.serializers.UserSerializer",
+        "current_user": "core_apps.users.serializers.UserSerializer",
+        "user_delete": "djoser.serializers.UserDeleteSerializer",
+    }
 }
 
 LOGGING = {
@@ -168,15 +204,15 @@ LOGGING = {
             'format': '%(levelname)s %(name)-12s %(asctime)s %(module)s ' '%(process)d %(thread)d %(message)s'
         }
     },
-    "handlers" : {
-        "console" : {
-            "level" : "DEBUG",
-            "class" : "logging.StreamHandler",
-            "formatter" : "verbose"
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose"
         }
     },
-    "root" : {
-        "handlers" : ["console"],
-        "level" : "INFO"
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO"
     }
 }
