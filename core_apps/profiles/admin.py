@@ -1,3 +1,9 @@
 from django.contrib import admin
+from .models import Profile
 
-# Register your models here.
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ["pkid", "id", "user", "gender", "phone_number", "country", "city", "profile_photo", "twitter_handler", "about_me", "created_at", "updated_at"]
+    list_filter = ["gender", "country", "city"]
+    list_display_links = ["pkid", "id"]
+
+admin.site.register(Profile, ProfileAdmin)
